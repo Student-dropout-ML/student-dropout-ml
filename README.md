@@ -30,6 +30,7 @@ Cílem je vytvořit celý ML pipeline — od průzkumné analýzy přes klasifik
 student dropout/
 │
 ├── notebooks/                               # Jupyter notebooky (pipeline)
+│   ├── 00-intro.ipynb                       # Přizpůsobení zadání: instance, atribut, cost matrix
 │   ├── 01-exploratory-data-analysis.ipynb   # EDA: distribuce, korelace, třídy
 │   ├── 02-data-preprocessing.ipynb          # Pipeline: imputace, škálování, SMOTE
 │   ├── 03a-dummy-baseline.ipynb             # Dummy klasifikátor (referenční bod)
@@ -49,8 +50,11 @@ student dropout/
 ├── data/
 │   ├── student_dropout_dataset_v3.csv       # Zdrojový dataset (Kaggle)
 │   └── processed/
-│       ├── split_data.pkl                   # Train/test split + preprocessor
-│       └── clustered_data.pkl               # Výstup shlukování (K-Means + scaler)
+│       ├── split_data.pkl                   # Train/test split + preprocessor (interní)
+│       ├── clustered_data.pkl               # Výstup shlukování (K-Means + scaler; interní)
+│       ├── train_set.csv                    # Předzpracovaná trénovací data (8 000 řádků)
+│       ├── test_set.csv                     # Předzpracovaná testovací data (2 000 řádků)
+│       └── clustering_subset.csv            # Podmnožina Semester==1 se stitky shluků (2 455 řádků)
 │
 ├── models/
 │   ├── baseline/                            # Baseline modely (před tuningem)

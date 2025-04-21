@@ -220,3 +220,5 @@ results/
 *.docx
 knowledge_graph.md
 knowledge_graph.json
+# Microsoft Office temporary lock files
+~$*
