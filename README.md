@@ -49,7 +49,44 @@ Práci jsme si rozdělili do následujících logických bloků, ať si nelezeme
 
 ## Jak začít (Pro členy týmu)
 
-1. Naklonujte si tento repozitář k sobě do PC: `git clone <odkaz-na-repo>`
-2. Stáhněte si `.csv` data z Kagglu a vložte je do lokální složky `data/`.
-3. Vytvořte si ve svém IDE (DataSpell) virtuální prostředí (conda/venv) a nainstalujte závislosti (`scikit-learn`, `pandas`, atd.).
-4. Otevřete si v `notebooks/` připravenou šablonu pro Pipeline a můžete začít psát svou část!
+Abychom všichni pracovali se stejnými verzemi knihoven a nepadal nám kód, postupujte přesně takto:
+
+1. **Naklonujte si repozitář:** `git clone <odkaz-na-repo>`
+2. **Stáhněte data:** Z Kagglu stáhněte `.csv` a vložte ho do lokální složky `data/`. *(Pozor: data se nesmí nahrávat na GitHub, složka je chráněná v .gitignore).*
+3. **Vytvořte virtuální prostředí (venv):**
+   Otevřete terminál přímo ve svém IDE (DataSpell/VSCode) a zadejte:
+   * Mac/Linux: `python3 -m venv venv`
+   * Windows: `python -m venv venv`
+4. **Aktivujte prostředí:**
+   * Mac/Linux: `source venv/bin/activate`
+   * Windows: `venv\Scripts\activate`
+   *(Úspěch poznáte tak, že v terminálu na začátku řádku svítí zelené `(venv)`).*
+5. **Nainstalujte stejné knihovny:**
+   Zadejte: `pip install -r requirements.txt`
+6. **Připojte IDE:** Ujistěte se, že vaše vývojové prostředí používá jako Python Interpreter tuto novou složku `venv`. Pak si otevřete šablonu `00-shared-pipeline-template.ipynb` a můžete začít kódit!
+
+## Průvodce repozitářem (Jak s ním pracovat a co kam patří)
+
+Abychom předešli "Git konfliktům" (když dva lidé upravují stejný soubor) a chaosu v kódu, dodržujeme tento jednoduchý workflow. Každá složka má svůj jasný účel:
+
+### 1. Složka `data/` (Píseček pro syrová data)
+* **Co sem patří:** Náš dataset stažený z Kagglu.
+* **Pravidlo:** Složka je záměrně ignorovaná Gitem (přes `.gitignore`). Data si sem stáhněte pouze k sobě lokálně na disk. **Git je na GitHub nikdy nenahraje**, čímž chráníme repozitář před zasekáním obřími soubory.
+
+### 2. Složka `notebooks/` (Zde se tvoří kód)
+* **Co sem patří:** Všechny Jupyter notebooky (`.ipynb`).
+* **Pravidlo:** Nepracujte všichni v jednom souboru! Každý logický krok projektu má svůj vlastní, jasně očíslovaný notebook. Tím pádem na sebe nebudeme při práci narážet.
+* **Logická osa práce (kdo dělá co):**
+  * `00-shared-pipeline-template.ipynb` -> Výchozí šablona pro předzpracování. Ošetřuje Data Leakage (připravil Honza).
+  * `01-exploratory-data-analysis.ipynb` -> Zde zkoumají data a tvoří grafy Matěj a Kozub.
+  * `02-model-training.ipynb` -> Zde Matěj/Kozub trénují a ladí klasifikační modely.
+  * `03-evaluation.ipynb` -> Zde Martin aplikuje matici nákladů a vyhodnocuje nejlepší model.
+  * `04-xai-explanations.ipynb` -> Zde Honza tvoří vysvětlitelnost a rozpad predikcí (SHAP/LIME).
+
+### 3. Složka `models/` (Sklad hotových modelů)
+* **Co sem patří:** Natrénované modely exportované z notebooků (např. pomocí knihovny `joblib` jako `.pkl` soubory).
+* **Pravidlo:** Jakmile datoví inženýři v kroku `02` natrénují finální model, uloží ho sem. Evaluátoři (Martin a Honza) v krocích `03` a `04` kód znovu netrénují, ale pouze si ze složky načtou tento hotový uložený model. Tím ušetříme čas a zajistíme konzistenci.
+
+### 4. Složka `docs/` (Kancelář)
+* **Co sem patří:** Zadání, závěrečná zpráva (Word/PDF), byznys plán, prezentace a vygenerované HTML exporty našich notebooků.
+* **Pravidlo:** Hlavní pracovní prostor pro Kláru (prezentace, texty) a Alexe (Quality Assurance a kontrola zadání).
