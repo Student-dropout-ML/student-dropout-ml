@@ -53,17 +53,18 @@ Abychom všichni pracovali se stejnými verzemi knihoven a nepadal nám kód, po
 
 1. **Naklonujte si repozitář:** `git clone <odkaz-na-repo>`
 2. **Stáhněte data:** Z Kagglu stáhněte `.csv` a vložte ho do lokální složky `data/`. *(Pozor: data se nesmí nahrávat na GitHub, složka je chráněná v .gitignore).*
-3. **Vytvořte virtuální prostředí (venv):**
-   Otevřete terminál přímo ve svém IDE (DataSpell/VSCode) a zadejte:
-   * Mac/Linux: `python3 -m venv venv`
-   * Windows: `python -m venv venv`
+3. **Vytvořte virtuální prostředí (venv) s Pythonem 3.12:**
+   Nejspolehlivější je vytvořit ho přímo přes vaše IDE, abyste měli jistotu správné verze:
+   * **DataSpell / PyCharm:** `Settings -> Python Interpreter -> Add Local Interpreter -> Virtualenv`. Jako *Base interpreter* vyberte ze seznamu **Python 3.12**.
+   * **VS Code:** Otevřete paletu příkazů (`Ctrl+Shift+P` / `Cmd+Shift+P`), zadejte `Python: Create Environment`, vyberte `Venv` a ze seznamu zvolte **Python 3.12**.
+   *(Pokud to děláte čistě přes terminál, ověřte si nejdřív pomocí `python3 --version`, že vám příkaz opravdu ukazuje 3.12, a pak teprve zadejte `python3 -m venv .venv`).*
 4. **Aktivujte prostředí:**
-   * Mac/Linux: `source venv/bin/activate`
-   * Windows: `venv\Scripts\activate`
-   *(Úspěch poznáte tak, že v terminálu na začátku řádku svítí zelené `(venv)`).*
-5. **Nainstalujte stejné knihovny:**
+   * Mac/Linux: `source .venv/bin/activate`
+   * Windows: `.venv\Scripts\activate`
+   *(Úspěch poznáte tak, že v terminálu na začátku řádku svítí zelené `(.venv)`).*
+5. **Nainstalujte sjednocené knihovny:**
    Zadejte: `pip install -r requirements.txt`
-6. **Připojte IDE:** Ujistěte se, že vaše vývojové prostředí používá jako Python Interpreter tuto novou složku `venv`. Pak si otevřete šablonu `00-shared-pipeline-template.ipynb` a můžete začít kódit!
+6. **Zkontrolujte IDE:** Ujistěte se, že vaše vývojové prostředí opravdu používá tuto novou složku `.venv` jako kernel/interpreter. Pak si otevřete šablonu `00-shared-pipeline-template.ipynb` a můžete začít kódit!
 
 ## Průvodce repozitářem (Jak s ním pracovat a co kam patří)
 
