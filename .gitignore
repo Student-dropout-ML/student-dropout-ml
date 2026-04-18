@@ -208,3 +208,8 @@ __marimo__/
 
 data/*.csv
 .idea/
+
+# 1. Modely a zamražená data (Prevence obřích souborů)
+*.pkl
+models/
+data/processed/
