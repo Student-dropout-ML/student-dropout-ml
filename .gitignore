@@ -212,4 +212,7 @@ data/*.csv
 # 1. Modely a zamražená data (Prevence obřích souborů)
 *.pkl
 models/
+models/baseline
+models/tuned
 data/processed/
+results/
