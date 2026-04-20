@@ -1,93 +1,184 @@
 # Predikce předčasného ukončení studia (Student Dropout Prediction)
 
-Tento repozitář obsahuje naši týmovou semestrální práci na předmět Strojové učení. 
+Semestrální práce na předmět **Zpracování informací a znalostí**.  
+Cílem je vytvořit celý ML pipeline — od průzkumné analýzy přes klasifikační a shlukovací modely až po vysvětlitelnost predikce (XAI).
 
-**Náš byznys cíl:** Identifikovat studenty, u kterých hrozí vysoké riziko, že nedokončí studium (dropout). Těmto studentům chceme následně nabídnout cílenou pomoc (např. stipendium nebo úpravu studijní zátěže), čímž škola ušetří peníze za ztracené školné a zlepší svou reputaci.
-
-**Zdroj dat:** [Student Dropout Prediction Dataset (Kaggle)](https://www.kaggle.com/datasets/meharshanali/student-dropout-prediction-dataset).
-
----
-
-## Struktura repozitáře a pravidla
-
-Abychom si nepřemazávali kód a nevznikal nám tu chaos, dodržujeme tuto strukturu:
-
-* `data/` -> Sem si stáhněte dataset z Kagglu. **Tato složka je v `.gitignore`, data nikdy nepushujte na GitHub!**
-* `notebooks/` -> Zde tvoříme kód. Každý si vytvoří svůj notebook podle své role (např. `01_EDA_Matej.ipynb`).
-* `models/` -> Sem budeme ukládat hotové natrénované modely (`.pkl` soubory) pro finální evaluaci a vysvětlitelnost.
-* `docs/` -> Podklady pro textovou zprávu a závěrečnou prezentaci.
-
-**Zlaté pravidlo (Data Leakage):** Předzpracování dat (škálování, doplňování hodnot) se smí učit POUZE z trénovací množiny. Používejte prosím `scikit-learn Pipeline` podle připravené šablony.
+**Zdroj dat:** [Student Dropout Prediction Dataset (Kaggle)](https://www.kaggle.com/datasets/meharshanali/student-dropout-prediction-dataset)
 
 ---
 
-## Tým a rozdělení rolí
+## Byznys kontext
 
-Práci jsme si rozdělili do následujících logických bloků, ať si nelezeme do zelí:
+Škola chce identifikovat studenty ohrožené odchodem (dropout), aby jim mohla nabídnout cílenou podporu (stipendium, úpravu studijní zátěže). Včasná intervence šetří náklady na ztracené školné a zlepšuje reputaci školy.
 
-### 1. Byznys a Prezentace (Klára)
-* **Role:** Storyteller a garant výstupu.
-* **Úkoly:** Sepsání úvodu a byznys plánu. Definice cílového atributu, "zájmové instance" a návrh matice nákladů. Shrnutí celkových výsledků do závěru (co fungovalo nejlépe, co je nejdůležitější). Finální úprava textu zprávy.
+### Přizpůsobení zadání
 
-### 2. Data & Modelování (Kozub & Matěj)
-* **Role:** Strojovna projektu (Supervised i Unsupervised learning).
-* **Úkoly:** Exploratorní analýza (EDA), histogramy a korelační grafy. Sestavení Pipeline pro předzpracování (čištění dat, škálování). Trénování klasifikačních modelů (Stromy, Lesy) vč. ladění metaparametrů. Provedení shlukování na vybrané podmnožině.
-
-### 3. Quality Assurance (Alex)
-* **Role:** Strážce kvality a checklistu.
-* **Úkoly:** Kontrola naplnění finálního checklistu zadání. Hlídání, zda jsou všechny kroky předzpracování zdůvodněné a zda modely testují různé metaparametry. Průběžná podpora týmu.
-
-### 4. Evaluace a Metriky (Martin)
-* **Role:** Vyhodnocení, zda se to škole vyplatí.
-* **Úkoly:** Výběr správných metrik (Accuracy/F1). Aplikace Klářiny matice nákladů na výsledky modelů. Hledání optimálního prahu (threshold), který škole ušetří nejvíce peněz. Vyhodnocení kvality shlukování (loketní křivka).
-
-### 5. Integrace a XAI (Honza)
-* **Role:** Architektura repozitáře a Safe AI (Vysvětlitelnost).
-* **Úkoly:** Spojení notebooků a modelů dohromady (zajištění opakovatelnosti kódu). Zpracování kapitoly "Vysvětlení" – určení důležitosti proměnných, použití XAI nástrojů (SHAP/LIME/ICE) pro simulaci toho, jak vybranému studentovi pomůže např. přidělení stipendia.
+| Parametr | Hodnota |
+|---|---|
+| **Cílový atribut** | `Target` — 1 = Dropout, 0 = Dostuduje |
+| **Vybraná instance** | Rizikový student z testovací množiny |
+| **Atribut zájmu** | `Study_Hours_per_Day` (počet hodin studia denně) |
+| **Podmnožina pro shlukování** | Studenti 1. semestru (`Semester == 1`) |
+| **Matice nákladů** | TP = +45 000 Kč, FP = −5 000 Kč, FN = −50 000 Kč, TN = 0 Kč |
+| **Doporučený klasifikační práh** | 0.35 (maximalizuje čistý finanční přínos) |
 
 ---
 
-## Jak začít (Pro členy týmu)
+## Struktura projektu
 
-Abychom všichni pracovali se stejnými verzemi knihoven a nepadal nám kód, postupujte přesně takto:
+```
+student dropout/
+│
+├── notebooks/                               # Jupyter notebooky (pipeline)
+│   ├── 01-exploratory-data-analysis.ipynb   # EDA: distribuce, korelace, třídy
+│   ├── 02-data-preprocessing.ipynb          # Pipeline: imputace, škálování, SMOTE
+│   ├── 03a-dummy-baseline.ipynb             # Dummy klasifikátor (referenční bod)
+│   ├── 03b-baseline-models.ipynb            # Baseline: LR, RF, GB, DT
+│   ├── 03c-baseline-evaluation.ipynb        # Metriky baseline modelů, feature importance
+│   ├── 03d-hyperparameter-tuning.ipynb      # RandomizedSearchCV + HP tabulky
+│   ├── 04a-clustering-model.ipynb           # K-Means + Agglomerative (studenti 1. sem.)
+│   ├── 04b-clustering-evaluation.ipynb      # PCA vizualizace, profily shluků
+│   ├── 05-model-evaluation.ipynb            # Matice nákladů, práh, finální srovnání
+│   ├── 06a-xai-setup.ipynb                  # Příprava XAI kontextu (instance, feature)
+│   ├── 06b-shap-n-ice-global.ipynb          # SHAP globální + ICE top featur
+│   ├── 06c-shap-local.ipynb                 # SHAP lokální: rizikový vs. bezpečný student
+│   ├── 06d-lime-explanations.ipynb          # LIME: lokální lineární aproximace
+│   ├── 06e-xai-cross-comparison.ipynb       # Křížové srovnání SHAP x ICE x Feature Imp.
+│   └── 06f-decision-tree-explanation.ipynb  # DT vizualizace + predikce pro vybraného stud.
+│
+├── data/
+│   ├── student_dropout_dataset_v3.csv       # Zdrojový dataset (Kaggle)
+│   └── processed/
+│       ├── split_data.pkl                   # Train/test split + preprocessor
+│       └── clustered_data.pkl               # Výstup shlukování (K-Means + scaler)
+│
+├── models/
+│   ├── baseline/                            # Baseline modely (před tuningem)
+│   │   ├── logistic_regression.pkl
+│   │   ├── random_forest.pkl
+│   │   ├── gradient_boosting.pkl
+│   │   └── decision_tree.pkl
+│   ├── tuned/                               # Doladěné modely (po RandomizedSearchCV)
+│   │   ├── logistic_regression_tuned.pkl
+│   │   ├── random_forest_tuned.pkl
+│   │   ├── gradient_boosting_tuned.pkl
+│   │   └── decision_tree_tuned.pkl
+│   ├── kmeans_final.pkl                     # Finální K-Means model
+│   ├── pca_2d.pkl                           # PCA pro vizualizaci shluků
+│   └── cluster_scaler.pkl                   # StandardScaler pro clustering
+│
+├── results/
+│   ├── hp_search_*.csv                      # Tabulky HP kombinací (všechny modely)
+│   ├── cost_matrix_tuned.png                # Graf čistého přínosu (matice nákladů)
+│   ├── threshold_analysis_tuned.png         # Analýza optimálního prahu
+│   ├── decision_tree_viz.png                # Vizualizace DT (prvních 3 úrovně)
+│   └── xai/
+│       ├── ice_interest_feature.png         # ICE pro atribut zájmu
+│       └── xai_context.pkl                  # Kontext pro XAI notebooky
+│
+├── customTransformers/
+│   └── holman_imputer.ipynb                 # Vlastní transformer: HolmanImputer
+│
+├── run_all.py                               # Spouštěč všech notebooků v pořadí
+└── requirements.txt                         # Python závislosti
+```
 
-1. **Naklonujte si repozitář:** `git clone <odkaz-na-repo>`
-2. **Stáhněte data:** Z Kagglu stáhněte `.csv` a vložte ho do lokální složky `data/`. *(Pozor: data se nesmí nahrávat na GitHub, složka je chráněná v .gitignore).*
-3. **Vytvořte virtuální prostředí (venv) s Pythonem 3.12:**
-   Nejspolehlivější je vytvořit ho přímo přes vaše IDE, abyste měli jistotu správné verze:
-   * **DataSpell / PyCharm:** `Settings -> Python Interpreter -> Add Local Interpreter -> Virtualenv`. Jako *Base interpreter* vyberte ze seznamu **Python 3.12**.
-   * **VS Code:** Otevřete paletu příkazů (`Ctrl+Shift+P` / `Cmd+Shift+P`), zadejte `Python: Create Environment`, vyberte `Venv` a ze seznamu zvolte **Python 3.12**.
-   *(Pokud to děláte čistě přes terminál, ověřte si nejdřív pomocí `python3 --version`, že vám příkaz opravdu ukazuje 3.12, a pak teprve zadejte `python3 -m venv .venv`).*
-4. **Aktivujte prostředí:**
-   * Mac/Linux: `source .venv/bin/activate`
-   * Windows: `.venv\Scripts\activate`
-   *(Úspěch poznáte tak, že v terminálu na začátku řádku svítí zelené `(.venv)`).*
-5. **Nainstalujte sjednocené knihovny:**
-   Zadejte: `pip install -r requirements.txt`
-6. **Zkontrolujte IDE:** Ujistěte se, že vaše vývojové prostředí opravdu používá tuto novou složku `.venv` jako kernel/interpreter. Pak si otevřete šablonu `00-shared-pipeline-template.ipynb` a můžete začít kódit!
+---
 
-## Průvodce repozitářem (Jak s ním pracovat a co kam patří)
+## Jak spustit
 
-Abychom předešli "Git konfliktům" (když dva lidé upravují stejný soubor) a chaosu v kódu, dodržujeme tento jednoduchý workflow. Každá složka má svůj jasný účel:
+### 1. Příprava prostředí
 
-### 1. Složka `data/` (Píseček pro syrová data)
-* **Co sem patří:** Náš dataset stažený z Kagglu.
-* **Pravidlo:** Složka je záměrně ignorovaná Gitem (přes `.gitignore`). Data si sem stáhněte pouze k sobě lokálně na disk. **Git je na GitHub nikdy nenahraje**, čímž chráníme repozitář před zasekáním obřími soubory.
+```bash
+# Naklonujte repozitář
+git clone <odkaz-na-repo>
+cd "student dropout"
 
-### 2. Složka `notebooks/` (Zde se tvoří kód)
-* **Co sem patří:** Všechny Jupyter notebooky (`.ipynb`).
-* **Pravidlo:** Nepracujte všichni v jednom souboru! Každý logický krok projektu má svůj vlastní, jasně očíslovaný notebook. Tím pádem na sebe nebudeme při práci narážet.
-* **Logická osa práce (kdo dělá co):**
-  * `00-shared-pipeline-template.ipynb` -> Výchozí šablona pro předzpracování. Ošetřuje Data Leakage (připravil Honza).
-  * `01-exploratory-data-analysis.ipynb` -> Zde zkoumají data a tvoří grafy Matěj a Kozub.
-  * `02-model-training.ipynb` -> Zde Matěj/Kozub trénují a ladí klasifikační modely.
-  * `03-evaluation.ipynb` -> Zde Martin aplikuje matici nákladů a vyhodnocuje nejlepší model.
-  * `04-xai-explanations.ipynb` -> Zde Honza tvoří vysvětlitelnost a rozpad predikcí (SHAP/LIME).
+# Vytvořte virtuální prostředí (Python 3.12)
+python3 -m venv .venv
+source .venv/bin/activate        # Mac/Linux
+# nebo: .venv\Scripts\activate   # Windows
 
-### 3. Složka `models/` (Sklad hotových modelů)
-* **Co sem patří:** Natrénované modely exportované z notebooků (např. pomocí knihovny `joblib` jako `.pkl` soubory).
-* **Pravidlo:** Jakmile datoví inženýři v kroku `02` natrénují finální model, uloží ho sem. Evaluátoři (Martin a Honza) v krocích `03` a `04` kód znovu netrénují, ale pouze si ze složky načtou tento hotový uložený model. Tím ušetříme čas a zajistíme konzistenci.
+# Nainstalujte závislosti
+pip install -r requirements.txt
+```
 
-### 4. Složka `docs/` (Kancelář)
-* **Co sem patří:** Zadání, závěrečná zpráva (Word/PDF), byznys plán, prezentace a vygenerované HTML exporty našich notebooků.
-* **Pravidlo:** Hlavní pracovní prostor pro Kláru (prezentace, texty) a Alexe (Quality Assurance a kontrola zadání).
+### 2. Data
+
+Stáhněte dataset z Kagglu a uložte jako `data/student_dropout_dataset_v3.csv`.  
+Složka `data/` je v `.gitignore` — data **nikdy nepushujte na GitHub**.
+
+### 3. Spuštění pipeline
+
+```bash
+# Spuštění všech notebooků v pořadí (výstupy se zapíší přímo do .ipynb)
+python run_all.py
+
+# Spuštění od konkrétního notebooku (po opravě chyby)
+python run_all.py --from 03d
+
+# Spuštění pouze vybraných notebooků
+python run_all.py --only 04a 04b
+```
+
+> Každý notebook má timeout 10 minut. Pokud notebook selže, `run_all.py` zastaví pipeline a vypíše, od kde spustit znovu.
+
+---
+
+## ML Pipeline — přehled
+
+### Předzpracování (`02`)
+
+- Vlastní transformer **HolmanImputer**: imputuje `Semester_GPA` mediánem, vypočítá feature `GPA_trend = CGPA − Semester_GPA`, poté `Semester_GPA` zahodí
+- `ColumnTransformer`: OneHotEncoder pro kategorické, StandardScaler pro numerické příznaky
+- **SMOTE** přes `ImbPipeline` (imbalanced-learn) pro vyvážení tříd v trénovací množině
+- Celý preprocessor je enkapsulován v sklearn Pipeline — nulový data leakage
+
+### Modely
+
+| Notebook | Modely | Metoda |
+|---|---|---|
+| `03b` baseline | LR, RF, GB, DT | `cross_val_score` (5-fold) |
+| `03d` tuning | LR, RF, GB, DT | `RandomizedSearchCV` (50 iterací, CV=5) |
+| `04a/b` clustering | K-Means, Agglomerative | Elbow + Silhouette, StandardScaler, PCA |
+
+### Evaluace (`05`)
+
+- Matice nákladů aplikována na všechny tuned modely
+- Analýza klasifikačního prahu (0.10–0.90) pro maximalizaci čistého přínosu
+- **Doporučený práh: 0.35** (výrazně zvyšuje Recall třídy Dropout)
+
+### XAI (`06a–06f`)
+
+| Metoda | Notebook | Co ukazuje |
+|---|---|---|
+| **SHAP global** | `06b` | Průměrná důležitost příznaků přes všechny modely |
+| **ICE + PDP** | `06b` | Efekt top příznaků na predikci (subpopulace) |
+| **ICE — atribut zájmu** | `06b` | Jak by se predikce změnila při úpravě `Study_Hours_per_Day` |
+| **SHAP local** | `06c` | Porovnání rizikového vs. bezpečného studenta |
+| **LIME** | `06d` | Lokální lineární aproximace pro vybraného studenta |
+| **Křížové srovnání** | `06e` | SHAP konsensus x feature importance x ICE heterogenita |
+| **Decision Tree** | `06f` | Vizualizace pravidel (max_depth=3) + predikce instance |
+
+---
+
+## Technická poznámka: vizuální styl
+
+Všechny grafy používají jednotný styl definovaný v prvním code cell každého notebooku:
+
+- **Paleta:** Paul Tol Bright (`#0077BB`, `#EE7733`, `#009988`, `#CC3311`, …) — colorblind-safe, doporučovaná pro vědecké publikace
+- **Pozadí os:** `#F8F9FA` (jemný off-white), bez pravého a horního spine
+- **Grid:** solidní, světle šedý (`#E9ECEF`), pod daty
+- **Font:** Helvetica Neue / Arial, titulky 14 pt bold
+
+---
+
+## Závislosti
+
+Viz `requirements.txt`. Klíčové knihovny:
+
+- `scikit-learn >= 1.3` — modely, pipeline, ICE/PDP
+- `imbalanced-learn >= 0.11` — SMOTE (ImbPipeline)
+- `shap >= 0.42` — globální i lokální vysvětlitelnost
+- `lime >= 0.2` — lokální lineární aproximace
+- `matplotlib >= 3.7` + `seaborn >= 0.12` — vizualizace
