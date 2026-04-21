@@ -216,3 +216,7 @@ models/baseline
 models/tuned
 data/processed/
 results/
+
+*.docx
+knowledge_graph.md
+knowledge_graph.json
