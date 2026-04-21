@@ -127,6 +127,55 @@ python run_all.py --only 04a 04b
 
 ## ML Pipeline — přehled
 
+```mermaid
+flowchart TD
+    CSV[("student_dropout_dataset_v3.csv")]
+
+    subgraph EX ["🔍 Průzkum dat"]
+        EDA["01 — EDA\ndistribuce · korelace · nevyváženost tříd"]
+    end
+
+    subgraph PP ["⚙️ Předzpracování"]
+        PIPE["02 — Pipeline\nHolmanImputer → OneHot / Scaler → SMOTE"]
+        SPLIT[("split_data.pkl\ntrain · test · preprocessor")]
+    end
+
+    subgraph SL ["🤖 Supervised Learning"]
+        BASE["03b — Baseline\nLR · RF · Gradient Boosting · Decision Tree"]
+        EVAL03["03c — Evaluace baseline\nmetriky · feature importance"]
+        TUNE["03d — Hyperparameter tuning\nRandomizedSearchCV · 50 iterací · CV=5"]
+        TUNED[("models/tuned/\n4× .pkl")]
+    end
+
+    subgraph UL ["🔵 Unsupervised Learning"]
+        CLUST["04a — Shlukování\nK-Means + Agglomerative\nSemester == 1 · StandardScaler"]
+        CLDAT[("clustered_data.pkl")]
+        CLEV["04b — Evaluace shluků\nElbow · Silhouette · PCA · profily"]
+    end
+
+    subgraph EV ["📊 Evaluace & Vysvětlitelnost"]
+        EVAL["05 — Finální evaluace\nmatice nákladů · optimalizace prahu 0.35"]
+        XAI["06a–06f — Vysvětlitelnost\nSHAP · LIME · ICE · Decision Tree"]
+    end
+
+    OUT[/"📈 Výstupy\ncost_matrix.png · threshold.png\nice_interest_feature.png · decision_tree_viz.png"/]
+
+    CSV --> EDA
+    CSV --> PIPE
+    PIPE --> SPLIT
+    SPLIT --> BASE
+    BASE --> EVAL03
+    EVAL03 --> TUNE
+    TUNE --> TUNED
+    SPLIT --> CLUST
+    CLUST --> CLDAT
+    CLDAT --> CLEV
+    TUNED --> EVAL
+    TUNED --> XAI
+    EVAL --> OUT
+    XAI --> OUT
+```
+
 ### Předzpracování (`02`)
 
 - Vlastní transformer **HolmanImputer**: imputuje `Semester_GPA` mediánem, vypočítá feature `GPA_trend = CGPA − Semester_GPA`, poté `Semester_GPA` zahodí
